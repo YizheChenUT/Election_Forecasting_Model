@@ -1,26 +1,33 @@
 #### Preamble ####
-# Purpose: Downloads and saves the data from [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Downloads and saves the data from FiveThirtyEight Presidential Polls.
+# Author: Yizhe Chen
+# Date: 22 OCT 2024
+# Contact: yz.chen@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: Must have access to the internet.
+# Any other information needed? No
 
 
 #### Workspace setup ####
-library(opendatatoronto)
+library(httr)  # For downloading data
 library(tidyverse)
-# [...UPDATE THIS...]
 
 #### Download data ####
-# [...ADD CODE HERE TO DOWNLOAD...]
+# Specify the URL for the data
+url <- "https://projects.fivethirtyeight.com/polls/data/president_polls.csv"
 
+# Use the GET function from the httr package to download the data
+response <- GET(url)
 
+# Check if the download is successful (status code 200 means success)
+if (status_code(response) == 200) {
+  # Parse the content as text and convert it to a data frame
+  the_raw_data <- read_csv(content(response, as = "text"))
 
 #### Save data ####
-# [...UPDATE THIS...]
-# change the_raw_data to whatever name you assigned when you downloaded it.
-write_csv(the_raw_data, "inputs/data/raw_data.csv") 
-
-         
+  write_csv(the_raw_data, "data/01-raw_data/raw_data.csv")
+  
+  print("Data downloaded and saved successfully.")
+} else {
+  print(paste("Failed to download data. Status code:", status_code(response)))
+}
