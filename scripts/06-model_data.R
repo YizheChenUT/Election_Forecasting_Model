@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Models polling data for a single pollster (YouGov) officially.
+# Author: Yizhe Chen
+# Date: 22 OCT 2024
+# Contact: yz.chen@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: Must have cleaned polling data.
+# Any other information needed? No
 
 
 #### Workspace setup ####
@@ -13,12 +13,13 @@ library(tidyverse)
 library(rstanarm)
 
 #### Read data ####
-analysis_data <- read_csv("data/analysis_data/analysis_data.csv")
+analysis_data <- read_csv("data/02-analysis_data/analysis_data.csv")
 
 ### Model data ####
+# Model with multiple predictors
 first_model <-
   stan_glm(
-    formula = flying_time ~ length + width,
+    formula = pct ~ party + candidate_name + sample_size + end_date,
     data = analysis_data,
     family = gaussian(),
     prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
@@ -31,7 +32,5 @@ first_model <-
 #### Save model ####
 saveRDS(
   first_model,
-  file = "models/first_model.rds"
+  file = "models/final_model.rds"
 )
-
-
