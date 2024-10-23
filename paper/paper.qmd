@@ -1,15 +1,17 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Forecasting U.S. Presidential Election Outcomes: A Poll-Based Predictive Model Using YouGov Data"
+subtitle: "Analyzing the Impact of Political Party, Candidate Name, and Sample Size on Vote Share Predictions"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: [https://github.com/RohanAlexander/starter_folder](https://github.com/RohanAlexander/starter_folder)."
+  - Yizhe Chen
+  - Charlie Zhang
+  - Qizhou Xie
+thanks: "Code and data are available at: [https://github.com/YizheChenUT/Election_Forecasting_Model.git](https://github.com/YizheChenUT/Election_Forecasting_Model.git)."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This paper presents a linear regression model that predicts the percentage of votes for presidential candidates based on polling data from YouGov. The model incorporates key predictors such as political party, candidate name, sample size, and polling end date. Our results show that both political party affiliation and sample size significantly affect the predicted vote share, with Republican candidates often receiving higher predicted percentages. This study highlights the importance of integrating candidate-specific and poll-specific factors to improve election forecasts, providing useful insights for political analysts and pollsters."
 format: pdf
 number-sections: true
+toc: true
 bibliography: references.bib
 ---
 
@@ -19,129 +21,154 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
 ```
 
 
 # Introduction
 
-Overview paragraph
+Polling data plays a critical role in shaping public opinion and forecasting election outcomes, particularly in democratic societies where political campaigns rely heavily on polls to gauge voter preferences. In the context of the U.S. presidential elections, the accuracy of poll-based predictions has become increasingly important for political parties, candidates, and media organizations. Despite the growing reliance on polling, there are several challenges in making accurate predictions, such as sample selection, timing of the poll, and candidate-specific factors.
 
-Estimand paragraph
+This paper aims to build a predictive model using polling data from YouGov, one of the most recognized polling agencies, to forecast the percentage of votes for presidential candidates. The model incorporates variables such as political party, candidate name, sample size, and the poll's end date. By focusing on a single pollster, this study seeks to analyze the effect of these factors on vote share predictions and contribute to the broader literature on election forecasting.
 
-Results paragraph
-
-Why it matters paragraph
+The estimand of the model is the predicted percentage of votes that each candidate is expected to receive, which is influenced by the selected variables. Our findings suggest that both the political party of a candidate and the sample size of the poll significantly affect vote share predictions. These results are important as they provide valuable insights into how different factors influence the accuracy of polling predictions, potentially improving the quality of future election forecasts.
 
 Telegraphing paragraph: The remainder of this paper is structured as follows. @sec-data....
-
-
-
-
 
 
 # Data {#sec-data}
 
 ## Overview
 
-We use the statistical programming language R [@citeR].... Our data [@shelter].... Following @tellingstories, we consider...
+We use the statistical programming language R [@citeR] to process and analyze the polling data sourced from YouGov, one of the leading polling agencies for U.S. elections. The dataset includes several key variables that are important for predicting the percentage of votes each presidential candidate might receive, such as candidate name, political party, sample size, and the polling end date. Following the approach outlined by @tellingstories, we incorporate both candidate-specific and poll-specific factors to improve the accuracy of our model.
 
-Overview text
+The data was cleaned and processed to ensure that all missing values for the vote percentage (pct) were removed, and categorical variables like candidate name and political party were properly encoded. Additionally, sample sizes and dates were standardized for consistency across all polling entries.
 
 ## Measurement
 	
-Some paragraphs about how we go from a phenomena in the world to an entry in the dataset.
+Polling data, in essence, represents a snapshot of public opinion at a given time. In our case, the dataset captures public opinion on various presidential candidates based on responses collected via YouGov's online surveys. These responses are translated into numerical entries in the dataset, such as the predicted percentage of votes a candidate might receive (pct), the number of respondents (sample_size), and the poll's end date (end_date).
 
 ## Outcome variables
 
-Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
-
-
-
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+The primary outcome variable in our dataset is the predicted percentage of votes (pct) for each candidate. This variable is influenced by several factors, including the candidate's political party, the sample size of the poll, and the timing of the poll. To illustrate the distribution of vote percentages for candidates from different political parties, we present the following graph.
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
+#| label: fig-vote-share
+#| fig-cap: Predicted vote percentage by party
 #| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
+#| eval: true
 #| warning: false
 #| message: false
 
 analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
 
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
+ggplot(analysis_data, aes(x = party, y = pct, fill = party)) +
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = "Set1") +
   theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+  labs(x = "Political Party", y = "Predicted Vote Percentage")
+
 ```
 
-Talk way more about it. 
+As shown in @fig-vote-share, Republican candidates tend to have a slightly higher predicted vote percentage compared to Democratic candidates across the polls. This is consistent with the trend observed in more recent elections, where party affiliation plays a significant role in influencing voter preferences.
+
+## Sample size
+
+Another important aspect of our data is the sample size, which varies between polls. Larger sample sizes tend to produce more reliable predictions, as they better capture the diversity of voter preferences. Below, we show the relationship between sample size and predicted vote share.
+
+```{r}
+#| label: fig-sample-size
+#| fig-cap: Relationship between sample size and predicted vote percentage
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+ggplot(analysis_data, aes(x = sample_size, y = pct)) +
+  geom_point(alpha = 0.8) +
+  theme_minimal() +
+  labs(x = "Sample Size", y = "Predicted Vote Percentage")
+
+```
+
+In @fig-sample-size, we observe that larger sample sizes tend to produce a wider range of vote percentages. This suggests that larger polls may capture more nuanced variations in voter preferences, which could be critical in tight election races.
 
 ## Predictor variables
 
-Add graphs, tables and text.
+Several predictor variables were included in our model to estimate the percentage of votes for each candidate. These variables include:
 
-Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
+- **Political Party (party)**: Whether the candidate belongs to the Democratic, Republican, or other parties.
+- **Candidate Name (candidate_name)**: The specific candidate being polled, which can influence vote shares based on their popularity and recognition.
+- **Sample Size (sample_size)**: The number of respondents in the poll, which affects the reliability of the vote predictions.
+- **Polling End Date (end_date)**: The date when the poll concluded, as public opinion can shift closer to the election date.
 
+The relationships between these predictor variables and the outcome variable were further explored in the following section. We simply explore the distribution of political parties within our dataset.
 
+```{r}
+#| label: fig-party-distribution
+#| fig-cap: Distribution of political parties in the polling data
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
 
+ggplot(analysis_data, aes(x = party, fill = party)) +
+  geom_bar(alpha = 0.8) +
+  scale_fill_brewer(palette = "Set1") +
+  theme_minimal() +
+  labs(x = "Political Party", y = "Number of Polls")
 
+```
 
-
-
+In @fig-party-distribution, we see that the dataset contains a relatively balanced number of polls for both major political parties, ensuring that the model predictions are not biased toward one party over the other.
 
 # Model
 
-The goal of our modelling strategy is twofold. Firstly,...
+The goal of our modeling strategy is twofold. Firstly, we aim to predict the percentage of votes each presidential candidate will receive using polling data from YouGov. Secondly, we seek to understand how key factors—such as political party, candidate name, sample size, and polling end date—affect vote share predictions.
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+We employ a Bayesian linear regression model to investigate these relationships. The model assumes that the percentage of votes (pct) follows a normal distribution, with predictors including the political party of the candidate, the candidate’s name, the sample size of the poll, and the end date of the poll.
 
 ## Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+Define $y_i$ as the predicted percentage of votes for candidate $i$, and $\texttt{party}_i$, $\texttt{candidate}_i$, $\texttt{sample\_size}_i$, and $\texttt{end\_date}_i$ as the political party, candidate name, sample size, and polling end date for candidate $i$ respectively.
 
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
+The model is formulated as:
 
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+\[
+y_i | \mu_i, \sigma \sim \text{Normal}(\mu_i, \sigma)
+\]
 
+where
 
-### Model justification
+\[
+\mu_i = \alpha + \beta_1 \cdot \texttt{party}_i + \beta_2 \cdot \texttt{candidate}_i + \beta_3 \cdot \texttt{sample\_size}_i + \beta_4 \cdot \texttt{end\_date}_i
+\]
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+- $\alpha$ is the intercept, representing the baseline vote share.
+- $\beta_1$, $\beta_2$, $\beta_3$, and $\beta_4$ are the coefficients representing the effect of political party, candidate name, sample size, and polling end date, respectively.
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
+The priors for the parameters are as follows:
 
+\[
+\alpha \sim \text{Normal}(0, 2.5)
+\]
+\[
+\beta_1, \beta_2, \beta_3, \beta_4 \sim \text{Normal}(0, 2.5)
+\]
+\[
+\sigma \sim \text{Exponential}(1)
+\]
+
+We run the model in R [@citeR] using the rstanarm package [@rstanarm]. The default priors from rstanarm are applied, reflecting weak prior beliefs to allow the data to speak for itself.
+
+## Model justification
+
+We expect a significant relationship between the predictors and the percentage of votes. Specifically, political party is expected to have a substantial impact, as previous polls suggest that party affiliation strongly correlates with voter preferences. Additionally, sample size is an important predictor, as larger sample sizes tend to provide more reliable estimates. Polls conducted closer to the election (end date) may also capture more accurate voter sentiments, leading to better predictions.
+
+The Bayesian approach allows for more flexibility in the modeling process, particularly when accounting for uncertainty in the predictions. The inclusion of candidate-specific and poll-specific factors ensures that the model captures the nuanced dynamics of election forecasting, providing a more comprehensive analysis of polling data.
 
 # Results
 
-Our results are summarized in @tbl-modelresults.
+Our results are summarized in @tbl-modelresults. The model was designed to predict the percentage of votes each presidential candidate might receive based on several key factors: political party, candidate name, sample size, and polling end date. Below, we present a table of the model's coefficients, followed by visualizations of the relationship between the predictors and the predicted vote share.
 
 ```{r}
 #| echo: false
@@ -151,27 +178,51 @@ Our results are summarized in @tbl-modelresults.
 
 library(rstanarm)
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
+# Load the model
+first_model <- readRDS(file = here::here("models/final_model.rds"))
+
 ```
+
 
 ```{r}
 #| echo: false
 #| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
+#| message: false
+#| label: tbl-modelresults
+#| tbl-cap: "Models of vote percentage based on party, candidate name, sample size, and end date"
 
 modelsummary::modelsummary(
   list(
-    "First model" = first_model
+    "Vote Share Prediction Model" = first_model
   ),
-  statistic = "mad",
-  fmt = 2
+  statistic = "mad",  # Mean absolute deviation
+  fmt = 2  # Format to 2 decimal places
 )
+
 ```
 
+The table above (@tbl-modelresults) provides the estimated coefficients for each of the predictors in the model. From the results, we observe that political party and sample size are significant predictors of vote share, with Republican candidates generally receiving higher predicted vote percentages.
 
+To further explore the results, we visualize the relationship between sample size and predicted vote percentage, as well as the effect of political party on the predicted vote share.
+
+```{r}
+#| label: fig-sample-vote
+#| fig-cap: "Relationship between sample size and predicted vote percentage"
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+ggplot(analysis_data, aes(x = sample_size, y = pct)) +
+  geom_point(alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  theme_minimal() +
+  labs(x = "Sample Size", y = "Predicted Vote Percentage")
+
+```
+
+In @fig-sample-vote, we can see a positive relationship between the sample size and the predicted vote percentage. Larger polls tend to yield more extreme predictions, as shown by the range of predicted percentages in polls with larger sample sizes.
 
 
 # Discussion
