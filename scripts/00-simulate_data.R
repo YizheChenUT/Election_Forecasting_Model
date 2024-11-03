@@ -10,6 +10,7 @@
 
 #### Workspace setup ####
 library(tidyverse)
+library(arrow)  # For saving data in Parquet format
 set.seed(853)
 
 
@@ -35,4 +36,4 @@ simulated_data <- tibble(
 
 
 #### Save data ####
-write_csv(simulated_data, "data/00-simulated_data/simulated_data.csv")
+write_parquet(simulated_data, "data/00-simulated_data/simulated_data.parquet")
