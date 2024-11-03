@@ -10,6 +10,7 @@
 #### Workspace setup ####
 library(tidyverse)
 library(janitor)
+library(arrow)  # For saving data in Parquet format
 
 #### Clean data ####
 raw_data <- read_csv("data/01-raw_data/raw_data.csv")
@@ -34,6 +35,6 @@ cleaned_data <-
   arrange(start_date)          # Arrange data by the 'start_date'
 
 #### Save data ####
-write_csv(cleaned_data, "data/02-analysis_data/analysis_data.csv")
+write_parquet(cleaned_data, "data/02-analysis_data/analysis_data.parquet")
 
-print("Data cleaned and saved successfully.")
+print("Data cleaned and saved as a Parquet file successfully.")

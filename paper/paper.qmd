@@ -26,6 +26,7 @@ library(tidyverse)
 library(rstanarm)
 library(modelsummary)
 library(kableExtra)
+library(arrow)
 
 ```
 
@@ -59,7 +60,7 @@ The primary outcome variable in our dataset is the predicted percentage of votes
 #| warning: false
 #| message: false
 
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 
 ggplot(analysis_data, aes(x = party, y = pct, fill = party)) +
   geom_boxplot(alpha = 0.8) +

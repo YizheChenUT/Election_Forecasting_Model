@@ -1,12 +1,11 @@
 #### Preamble ####
-# Purpose: Simulates a dataset of Australian electoral divisions, including the 
-  #state and party that won each division.
-# Author: Rohan Alexander
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
+# Purpose: Simulates a dataset of U.S. presidential election polling data,  including candidate, party, sample size, and predicted vote percentage.
+# Author: Yizhe Chen
+# Date: 3 Nov 2024
+# Contact: Yizhe Chen
 # License: MIT
 # Pre-requisites: The `tidyverse` package must be installed
-# Any other information needed? Make sure you are in the `starter_folder` rproj
+# Any other information needed? No
 
 
 #### Workspace setup ####
@@ -15,38 +14,25 @@ set.seed(853)
 
 
 #### Simulate data ####
-# State names
-states <- c(
-  "New South Wales",
-  "Victoria",
-  "Queensland",
-  "South Australia",
-  "Western Australia",
-  "Tasmania",
-  "Northern Territory",
-  "Australian Capital Territory"
+# Candidate names
+candidates <- c(
+  "Joe Biden", "Donald Trump", "Kamala Harris", "Ron DeSantis", 
+  "Bernie Sanders", "Nikki Haley", "Elizabeth Warren", "Vivek Ramaswamy"
 )
 
 # Political parties
-parties <- c("Labor", "Liberal", "Greens", "National", "Other")
+parties <- c("Democrat", "Republican", "Independent", "Green")
 
-# Create a dataset by randomly assigning states and parties to divisions
-analysis_data <- tibble(
-  division = paste("Division", 1:151),  # Add "Division" to make it a character
-  state = sample(
-    states,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.25, 0.25, 0.15, 0.1, 0.1, 0.1, 0.025, 0.025) # Rough state population distribution
-  ),
-  party = sample(
-    parties,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.40, 0.40, 0.05, 0.1, 0.05) # Rough party distribution
-  )
+# Simulate the dataset with sample size and vote percentage
+simulated_data <- tibble(
+  poll_id = 1:200,
+  candidate_name = sample(candidates, size = 200, replace = TRUE),
+  party = sample(parties, size = 200, replace = TRUE, prob = c(0.45, 0.45, 0.05, 0.05)),
+  sample_size = sample(500:3000, size = 200, replace = TRUE),
+  end_date = as.Date("2024-11-05") - sample(1:180, size = 200, replace = TRUE), # random dates within 6 months
+  pct = round(runif(200, min = 25, max = 75), 1)  # random vote percentage between 25% and 75%
 )
 
 
 #### Save data ####
-write_csv(analysis_data, "data/00-simulated_data/simulated_data.csv")
+write_csv(simulated_data, "data/00-simulated_data/simulated_data.csv")
