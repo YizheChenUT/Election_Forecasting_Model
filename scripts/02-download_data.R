@@ -9,7 +9,7 @@
 
 
 #### Workspace setup ####
-library(httr)  # For downloading data
+library(httr) # For downloading data
 library(tidyverse)
 
 #### Download data ####
@@ -24,9 +24,9 @@ if (status_code(response) == 200) {
   # Parse the content as text and convert it to a data frame
   the_raw_data <- read_csv(content(response, as = "text"))
 
-#### Save data ####
+  #### Save data ####
   write_csv(the_raw_data, "data/01-raw_data/raw_data.csv")
-  
+
   print("Data downloaded and saved successfully.")
 } else {
   print(paste("Failed to download data. Status code:", status_code(response)))

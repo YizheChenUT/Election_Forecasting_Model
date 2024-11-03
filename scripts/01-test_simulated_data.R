@@ -4,9 +4,9 @@
 # Date: 3 Nov 2024
 # Contact: yz.chen@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: 
-  # - The `tidyverse` package must be installed and loaded
-  # - 00-simulate_data.R must have been run
+# Pre-requisites:
+# - The `tidyverse` package must be installed and loaded
+# - 00-simulate_data.R must have been run
 # Any other information needed? No
 
 

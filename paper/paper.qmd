@@ -27,7 +27,6 @@ library(rstanarm)
 library(modelsummary)
 library(kableExtra)
 library(arrow)
-
 ```
 
 
@@ -67,7 +66,6 @@ ggplot(analysis_data, aes(x = party, y = pct, fill = party)) +
   scale_fill_brewer(palette = "Set1") +
   theme_minimal() +
   labs(x = "Political Party", y = "Predicted Vote Percentage")
-
 ```
 
 As shown in @fig-vote-share, Republican candidates tend to have a slightly higher predicted vote percentage compared to Democratic candidates across the polls. This is consistent with the trend observed in more recent elections, where party affiliation plays a significant role in influencing voter preferences.
@@ -87,7 +85,6 @@ ggplot(analysis_data, aes(x = sample_size, y = pct)) +
   geom_point(alpha = 0.8) +
   theme_minimal() +
   labs(x = "Sample Size", y = "Predicted Vote Percentage")
-
 ```
 
 This result, illustrated in @fig-sample-size, indicates a limited relationship between sample size and vote share predictions, with smaller sample sizes yielding similarly accurate predictions beyond a minimal threshold.
@@ -117,7 +114,6 @@ ggplot(analysis_data, aes(x = party, fill = party)) +
   scale_fill_brewer(palette = "Set1") +
   theme_minimal() +
   labs(x = "Political Party", y = "Number of Polls")
-
 ```
 
 In @fig-party-distribution, we see that the dataset contains a relatively balanced number of polls for both major political parties, ensuring that the model predictions are not biased toward one party over the other.
@@ -169,7 +165,6 @@ Our results are summarized in @tbl-modelresults by using the modelsummary packag
 
 # Load the model
 first_model <- readRDS(file = here::here("models/final_model.rds"))
-
 ```
 
 
@@ -185,9 +180,9 @@ modelsummary::modelsummary(
   list(
     "Vote Share Prediction Model" = first_model
   ),
-  statistic = "mad",  # Mean absolute deviation
-  fmt = 2  # Format to 2 decimal places
-)%>%
+  statistic = "mad", # Mean absolute deviation
+  fmt = 2 # Format to 2 decimal places
+) %>%
   kableExtra::kable_styling(font_size = 8, full_width = TRUE)
 ```
 
@@ -217,7 +212,6 @@ ggplot(analysis_data, aes(x = sample_size, y = pct)) +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
   theme_minimal() +
   labs(x = "Sample Size", y = "Predicted Vote Percentage")
-
 ```
 
 In @fig-sample-vote, we observe that there is no strong relationship between sample size and predicted vote share, as evidenced by the flat regression line. This supports the finding from the model coefficients, where the effect of sample size on vote predictions is negligible.
@@ -233,7 +227,6 @@ ggplot(analysis_data, aes(x = party, y = pct, fill = party)) +
   geom_boxplot(alpha = 0.8) +
   theme_minimal() +
   labs(x = "Political Party", y = "Predicted Vote Percentage")
-
 ```
 In @fig-party-vote, the distribution of predicted vote percentages by political party is shown. The model indicates that Republican candidates generally receive a higher predicted vote share compared to Democratic candidates. Third-party candidates, such as those from the Green and Independent parties, tend to have significantly lower predicted vote percentages.
 
