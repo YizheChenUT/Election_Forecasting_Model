@@ -154,6 +154,9 @@ We expect a significant relationship between the predictors and the percentage o
 
 The Bayesian approach allows for more flexibility in the modeling process, particularly when accounting for uncertainty in the predictions. The inclusion of candidate-specific and poll-specific factors ensures that the model captures the nuanced dynamics of election forecasting, providing a more comprehensive analysis of polling data.
 
+## Model Validation and Diagnostic Checks
+We validated the model through out-of-sample testing and calculated Root Mean Squared Error (RMSE) to assess prediction accuracy.These diagnostics confirmed that the model adequately converged. Additionally, alternative models, including a generalized linear model and polynomial terms, were tested, but the Bayesian linear model provided a balance of interpretability and predictive performance.
+
 # Results {#sec-result}
 Our results are summarized in @tbl-modelresults by using the modelsummary package [@modelsummary]. The model was designed to predict the percentage of votes each presidential candidate might receive based on several key factors: political party, candidate name, sample size, and polling end date. Below, we present a table of the model's coefficients, followed by visualizations of the relationship between the predictors and the predicted vote share.
 
