@@ -8,7 +8,7 @@ author:
 thanks: "Code and data are available at: [https://github.com/YizheChenUT/Election_Forecasting_Model.git](https://github.com/YizheChenUT/Election_Forecasting_Model.git)."
 date: today
 date-format: long
-abstract: "This study develops a Bayesian linear regression model to forecast U.S. presidential vote shares using polling data from YouGov, incorporating predictors like political party, candidate name, sample size, and poll end date. Key findings reveal that political party affiliation positively influences vote share, especially for major-party candidates, while candidate-specific characteristics, such as recognition, further impact predictions. Interestingly, sample size and polling end date show limited effects once minimum thresholds are met, suggesting stable voter sentiment over shorter periods and diminishing returns for larger samples. This model highlights the nuanced role of party and candidate factors in election forecasting and suggests directions for refining poll-based predictive models to enhance forecast accuracy."
+abstract: "This study develops a Bayesian linear regression model to forecast U.S. presidential vote shares using polling data from YouGov, incorporating predictors like political party, candidate name, sample size, and poll end date. Key findings reveal that political party affiliation positively influences vote share, especially for major-party candidates, while candidate-specific characteristics, such as recognition, further impact predictions. Interestingly, sample size and polling end date show limited effects once minimum thresholds are met, suggesting that voter sentiment remains relatively stable over short periods and that larger samples yield diminishing returns in predictive accuracy after a certain point. This trend is consistent with our model’s findings, where coefficients for sample size and end date are close to zero, confirming that their influence is limited after a baseline threshold. This model highlights the nuanced role of party and candidate factors in election forecasting and suggests directions for refining poll-based predictive models to enhance forecast accuracy."
 format: pdf
 pdf-engine: pdflatex
 number-sections: true
@@ -43,10 +43,24 @@ The remainder of this paper is structured as follows: Section @sec-data provides
 ## Overview
 We use the statistical programming language R [@citeR] to process and analyze the polling data sourced from YouGov [@YouGov], one of the leading polling agencies for U.S. elections. We use the httr package to download data [@httr] from the 538 website [@Wiederkehr]. The dataset includes several key variables that are important for predicting the percentage of votes each presidential candidate might receive, such as candidate name, political party, sample size, and the polling end date. Following the approach outlined by @tellingstories, we incorporate both candidate-specific and poll-specific factors to improve the accuracy of our model.
 
-The data was cleaned and processed through the janitor package to ensure that all missing values for the vote percentage (pct) were removed, and categorical variables like candidate name and political party were properly encoded [@janitor]. Additionally, sample sizes and dates were standardized for consistency across all polling entries.
+This study uses polling data exclusively from YouGov to ensure consistency in data quality and methodology. YouGov is recognized for its rigorous polling standards and extensive reach, making it a reliable source for U.S. presidential polling data. By focusing on a single, high-quality pollster, we reduce the variability that might arise from combining data across different polling organizations, which often use varied sampling and data collection methodologies. This choice allows for a more controlled analysis, emphasizing the effects of political party, candidate characteristics, and poll timing on predicted vote shares without the confounding influence of inconsistent polling methods.
+
+The data was cleaned and processed through the janitor package to ensure that all missing values for the vote percentage (pct) were removed, and categorical variables like candidate name and political party were properly encoded [@janitor]. Additionally, sample sizes and dates were standardized for consistency across all polling entries. Larger sample sizes generally improve the reliability of poll predictions, capturing a broader range of voter preferences. However, our data and model indicate that once a baseline sample size threshold is reached, further increases in sample size yield minimal predictive improvement. Similarly, polling end date can influence results if the poll is conducted close to the election date, but in our data, this effect stabilizes and diminishes quickly, as reflected in the near-zero coefficients for these variables in the model.
 
 ## Measurement
-Polling data, in essence, represents a snapshot of public opinion at a given time. In our case, the dataset captures public opinion on various presidential candidates based on responses collected via YouGov's online surveys. These responses are translated into numerical entries in the dataset, such as the predicted percentage of votes a candidate might receive (pct), the number of respondents (sample_size), and the poll's end date (end_date).
+Polling data captures a complex and sometimes contradictory set of opinions about who voters think should be president. To transform this mixture of opinions into a quantifiable outcome variable, we use specific polling techniques that simplify and structure public opinion.
+
+### Outcome Variable: Vote Share
+The primary outcome variable, predicted vote share (pct), represents an aggregated view of support for each candidate. This measure is derived from responses gathered by YouGov, where participants indicate their candidate preference. However, it is crucial to recognize that this number is an approximation—it consolidates diverse opinions into a single figure to facilitate prediction. Like measuring height where minor variations in stance, time of day, or even equipment can cause slight differences, the reported vote share is a reflection of the broader trend in sentiment rather than an absolute indicator of actual votes.
+
+To ensure reliability, YouGov applies various checks, such as demographic weighting and attention filters, to minimize biases and increase the validity of responses. For instance, demographic weighting adjusts raw responses to better reflect the population distribution across factors like age, gender, and education. However, even with these adjustments, the measurement of vote share remains an estimation, subject to fluctuation based on sample composition and timing of the poll.
+
+### Measurement of Predictor Variables
+- Political Party: The variable ‘party’ reflects the political alignment of each candidate. While party affiliation is a strong predictor, it is not static; voter loyalty can vary depending on political events or candidate performance.
+
+- Sample Size: This variable captures the number of respondents, which affects the reliability of the vote share prediction. However, as observed, sample size only improves reliability up to a certain point, where larger sizes yield diminishing returns.
+
+- Polling End Date: This variable marks the end of data collection for each poll, capturing a temporal aspect that may influence voter opinion closer to election day. However, this influence is minimal beyond a threshold, as sentiment stabilizes over time.
 
 ## Outcome variables
 The primary outcome variable in our dataset is the predicted percentage of votes (pct) for each candidate. This variable is influenced by several factors, including the candidate's political party, the sample size of the poll, and the timing of the poll. To illustrate the distribution of vote percentages for candidates from different political parties, we present the following graph.
@@ -146,7 +160,7 @@ $$\sigma \sim \text{Exponential}(1)$$
 We run the model in R [@citeR] using the rstanarm package [@rstanarm]. The default priors from rstanarm are applied, reflecting weak prior beliefs to allow the data to speak for itself.
 
 ## Model justification
-We expect a significant relationship between the predictors and the percentage of votes. Specifically, political party is expected to have a substantial impact, as previous polls suggest that party affiliation strongly correlates with voter preferences. Additionally, sample size is an important predictor, as larger sample sizes tend to provide more reliable estimates. Polls conducted closer to the election (end date) may also capture more accurate voter sentiments, leading to better predictions.
+We expect a significant relationship between the predictors and the percentage of votes. Specifically, political party is expected to have a substantial impact, as previous polls suggest that party affiliation strongly correlates with voter preferences. While sample size and polling end date are included as predictors to account for potential variation in vote predictions, we hypothesize that their impact may be limited once certain thresholds are reached. In the case of sample size, larger samples are expected to improve reliability only to a certain point, beyond which the additional data provides diminishing returns. Similarly, polling end date may have an influence closer to the election date, but its effect may stabilize earlier. These expectations are based on observed trends in polling analysis and will be tested in the model. Additionally, sample size is an important predictor, as larger sample sizes tend to provide more reliable estimates. Polls conducted closer to the election (end date) may also capture more accurate voter sentiments, leading to better predictions.
 
 The Bayesian approach allows for more flexibility in the modeling process, particularly when accounting for uncertainty in the predictions. The inclusion of candidate-specific and poll-specific factors ensures that the model captures the nuanced dynamics of election forecasting, providing a more comprehensive analysis of polling data.
 
@@ -191,11 +205,11 @@ The table above (@tbl-modelresults) provides the estimated coefficients for each
 Moreover, both sample size and end date have coefficients very close to zero, suggesting that these factors do not have a significant impact on the predicted vote percentages in this model.
 
 ## Key Findings
-- Political Party: The results show that the Republican party has a small positive effect on vote share predictions, while third-party candidates generally have lower predicted percentages.
+- Political Party: The results show that the Republican party has a small positive effect on vote share predictions, while third-party candidates generally have lower predicted percentages. The model indicates that the Republican party has a small positive effect on predicted vote share. However, this effect is more pronounced when compared to third-party candidates, such as those from the Green or Independent parties, who generally receive lower predicted vote percentages. This suggests that while party affiliation does influence predictions, the effect varies significantly across different party categories, with Republican candidates consistently showing stronger support compared to third-party candidates.
 
 - Candidate Name: Certain candidates, such as Kamala Harris and Joe Biden, have positive coefficients, indicating a higher predicted vote share compared to other candidates like Mike Pence and Vivek Ramaswamy, who show negative coefficients.
 
-- Sample Size and Poll End Date: The coefficients for sample size and poll end date are effectively zero, suggesting they do not have a meaningful effect on the vote predictions.
+- Sample Size and Poll End Date: The model results support our hypothesis that sample size and polling end date have limited influence on vote share predictions once a minimum threshold is met. The near-zero coefficients for these variables confirm that additional sample size or proximity to the election date does not significantly alter predictions beyond a certain point, aligning with our initial expectations.
 
 ## Visualization of Results
 We now turn to graphical representations to illustrate the relationship between sample size and predicted vote percentage, as well as the effect of political party on the predicted vote share.
@@ -230,6 +244,13 @@ ggplot(analysis_data, aes(x = party, y = pct, fill = party)) +
 ```
 In @fig-party-vote, the distribution of predicted vote percentages by political party is shown. The model indicates that Republican candidates generally receive a higher predicted vote share compared to Democratic candidates. Third-party candidates, such as those from the Green and Independent parties, tend to have significantly lower predicted vote percentages.
 
+## Predicted Election Outcome
+Based on the results of our Bayesian linear regression model, the predicted vote share suggests a favorable outcome for candidates associated with the Republican party. Specifically, the model indicates a small but positive effect of Republican affiliation on vote share predictions, which aligns with recent trends showing strong support for Republican candidates across various polls.
+
+While third-party candidates have been modeled with lower predicted vote shares, reflecting their historically lower performance in U.S. presidential elections, our model’s coefficients confirm that they are unlikely to secure a competitive share of the vote. Thus, the election appears to favor major-party candidates, with a slight advantage suggested for Republican candidates if the polling trends remain consistent.
+
+In conclusion, our model predicts that the upcoming U.S. presidential election will likely be contested mainly between major-party candidates, with a slight lead anticipated for Republican contenders based on current polling data.
+
 # Discussion {#sec-disscussion}
 ## Overview of Findings
 In this paper, we built a predictive model to estimate the vote share of U.S. presidential candidates using polling data, with key predictors including political party, candidate name, sample size, and polling end date. The goal was to understand how these factors influence predicted vote shares, and to gain understanding on the dynamics of political polling. The model’s high $R^2$ value (0.964) indicates it explains a substantial amount of variation in vote predictions, suggesting that it successfully captures relevant trends in the data. This outcome offers a deeper understanding of the factors driving poll-based vote share predictions in U.S. elections.
@@ -237,18 +258,22 @@ In this paper, we built a predictive model to estimate the vote share of U.S. pr
 ## Political Influence on Vote Share
 One key finding from this analysis is the impact of political party on vote share predictions. Our model indicates that candidates from major parties, particularly Republicans, tend to receive higher predicted vote shares compared to third-party candidates. This is consistent with historical trends, where major-party candidates generally dominate U.S. elections. The model reinforces the idea that party affiliation is a powerful determinant in voter preferences, reflecting the established influence of major parties in American politics. This finding aligns with broader theories in political science, where party affiliation often serves as a shortcut for voters, helping them make quick decisions about candidates based on their general political orientation.
 
+While political party affiliation is indeed a powerful determinant in shaping voter preferences, the model reveals that this influence is particularly strong for candidates from the major parties, especially the Republican party. Third-party candidates, by contrast, display significantly lower predicted vote shares. This disparity underscores the advantage held by major-party candidates in U.S. elections, where voter alignment with established parties remains a dominant factor in determining electoral outcomes. The contrast between Republican candidates and those from smaller parties highlights the variable impact of party affiliation on vote predictions.
+
 ## Candidate-Specific Effects on Vote Share
 Another important takeaway is the effect of candidate-specific factors on vote share predictions. Certain candidates, such as Joe Biden and Kamala Harris, show positive coefficients, indicating they are expected to receive a higher share of votes compared to others like Mike Pence or Vivek Ramaswamy. This suggests that individual characteristics and name recognition may play a role in influencing voter support. Recognizable figures with established reputations, such as former presidents or vice presidents, may have an advantage in polls due to higher visibility and public familiarity. This finding highlights the importance of candidate characteristics beyond party affiliation and points to the potential value of including more candidate-specific variables, such as favorability ratings, in future models.
 
 ## Limitations of Sample Size and Polling End Date as Predictors
 Despite the high explanatory power of the model, certain predictors—particularly sample size and polling end date—show little to no effect on vote share predictions. This result might initially seem counterintuitive, as larger sample sizes are generally associated with higher reliability in survey research. However, in this case, the lack of impact could suggest that once a minimum sample threshold is met, the additional respondents do not significantly alter the predicted vote share. Similarly, the end date of the poll may have little impact because public opinion might not shift drastically over short periods, especially if polling occurs well before the election. This raises questions about the utility of these predictors in vote share models and suggests that additional contextual factors, such as the timing of major political events, could be more meaningful.
 
+The diminishing impact of sample size and polling end date observed in our model aligns with prior research, suggesting that larger sample sizes contribute significantly to accuracy only up to a point, beyond which additional respondents add little value. Similarly, while voter sentiment may fluctuate closer to the election, our results indicate that sentiment stabilizes and is reflected in earlier polls, reducing the importance of poll timing once a basic recency threshold is achieved. These findings underscore the efficiency of targeted polling strategies and suggest that resources might be better allocated to other predictive factors rather than further increasing sample sizes or poll frequency close to the election.
+
 ## Weaknesses and Next Steps
 While this model provides valuable findings, it also has some limitations. First, the model does not incorporate a variable for state-level differences, which could be significant in the U.S. electoral system, where the Electoral College, not the popular vote, ultimately determines the election outcome. A more detailed model could include state as a predictor or even focus on state-level vote shares to estimate Electoral College outcomes.
 
 Additionally, our model lacks dynamic elements, such as shifts in public opinion over time, which could be particularly relevant in the lead-up to an election. Future models might address this by incorporating temporal factors or polling trends over several months, capturing how voter sentiment changes as the election date approaches.
 
-Finally, the model only uses data from one pollster, YouGov, which may limit the generalizability of the findings. Different pollsters have varying methodologies, sampling frames, and biases, all of which can influence poll results. Future research could incorporate data from multiple pollsters, applying a poll-aggregation approach to mitigate individual poll biases and improve overall prediction accuracy.
+Finally, another limitation of this study is the reliance on polling data solely from YouGov. However, this choice is deliberate; using a single, reputable source helps ensure data consistency and reduces the methodological variability that might confound results if multiple polling organizations were used. Future studies could explore multi-source data to compare the effects of different polling methodologies on vote share predictions.
 
 ## Concluding Remarks and Future Directions
 This analysis contributes to our understanding of how polling data can be used to predict election outcomes, highlighting the importance of political party and candidate characteristics in influencing vote shares. However, there remains much to explore. Future research could expand on this model by integrating additional predictors, such as candidate favorability and recent political events, or by building state-level models to predict Electoral College outcomes.
@@ -271,7 +296,9 @@ The population targeted by YouGov’s polls comprises U.S. adult citizens, provi
 YouGov employs a non-probability sampling approach, specifically targeting individuals within its online panel [@YouGov]. While this method allows YouGov to reach a large and diverse set of respondents quickly, it introduces certain limitations in terms of randomization and representativeness compared to traditional random sampling methods. To mitigate these issues, YouGov uses sophisticated weighting techniques to adjust for demographic discrepancies, ensuring that the sample more accurately reflects the broader U.S. population.
 
 ## Sampling Approach: Trade-offs
-The online nature of YouGov’s panel sampling allows for rapid and frequent polling. However, it also comes with trade-offs, particularly concerning coverage bias, as individuals without internet access or those less inclined to participate in online activities may be underrepresented. Additionally, while weighting adjustments improve representativeness, they cannot entirely compensate for the self-selection bias inherent in voluntary panel participation. This trade-off is a key factor to consider when interpreting results, as online samples may sometimes diverge from outcomes in broader, random-sample-based polls.
+YouGov primarily employs an online panel-based, non-probability sampling method. This approach is advantageous in terms of speed and cost-efficiency, allowing for rapid data collection and frequent polling cycles. However, it introduces potential self-selection bias as respondents voluntarily join the panel, which can affect the generalizability of the results. Self-selection bias occurs when individuals who opt into online panels differ systematically from those who do not, potentially leading to over- or under-representation of certain demographic groups.
+
+Self-selection bias can particularly influence predictions in cases where the polling sample does not adequately represent key voter demographics. To mitigate these risks, YouGov employs demographic weighting adjustments, but the effectiveness of these adjustments varies depending on the demographic alignment between the panel sample and the actual voter population.
 
 ## Non-response Handling
 To address potential non-response bias, YouGov employs weighting adjustments based on demographic factors such as age, gender, education, and political affiliation [@YouGov]. By adjusting responses according to these factors, YouGov attempts to balance out any biases introduced by individuals who choose not to respond to specific questions or surveys entirely. This weighting process helps align the sample's characteristics with the intended population, although it does not completely eliminate non-response bias.
@@ -312,6 +339,25 @@ Stratified Random Sampling will be employed, focusing on:
 
 The stratified random sampling method is ideal for this survey because it enhances the representativeness of the sample across key demographics, reducing potential biases associated with online-only recruitment.
 
+### Definition and Explanation
+In this study, we employ stratified random sampling to ensure our sample adequately represents the population by key demographic categories, such as age, gender, and ethnicity. Stratified random sampling is a method where the population is divided into homogeneous subgroups, or "strata," based on these categories. Random samples are then drawn from each stratum in proportion to their representation in the target population. By ensuring that each subgroup is represented, stratified sampling enhances the representativeness of the sample, which in turn reduces bias introduced by over- or under-representation of any specific group.
+
+This approach is particularly important in electoral polling, where voter preferences can vary significantly across demographic groups. By maintaining proportional representation within the sample, we can capture more accurate snapshots of each subgroup’s preferences, contributing to a more robust overall prediction.
+
+### Strengths and Weaknesses
+#### Strengths
+- Improved Representativeness: By including each stratum proportionally, stratified sampling reduces sampling bias, particularly in diverse populations. This method provides more reliable insights into the preferences of each demographic group and improves the accuracy of population-level estimates.
+
+- Increased Precision: Stratified sampling often requires smaller sample sizes than simple random sampling to achieve the same level of precision, as it reduces variance within each subgroup.
+
+#### Weaknesses
+- Increased Complexity: Implementing stratified sampling is more complex and requires detailed population information to create appropriate strata.
+
+- Potential Cost Increase: While stratified sampling can improve accuracy, maintaining balanced representation across all strata may increase the cost, particularly if the number of strata is high.
+
+### Simulation Validation
+To validate the effectiveness of stratified sampling, we could conduct a brief simulation demonstrating how varying the number of strata and sample sizes affects prediction stability and accuracy. By simulating different scenarios with a fixed population structure, we can observe the impact of adding strata on variance reduction in the predictions. For example, starting with a two-strata model (e.g., age and gender) and progressively adding additional categories (e.g., ethnicity, education level) can illustrate how stratified sampling progressively reduces sampling error up to a certain threshold. Such a simulation would support the decision to use stratified sampling and demonstrate its contribution to prediction reliability in electoral polling.
+
 ## Recruitment Strategy
 To reach a diverse population of respondents, the survey will use multi-channel recruitment, including:
 
@@ -336,6 +382,9 @@ To ensure data accuracy, several quality control measures will be in place:
 
 ## Poll Aggregation and Reporting
 This survey will be conducted in waves, with data collected at regular intervals leading up to the election. Results from each wave will be aggregated to provide a rolling average of voting intentions, smoothing out anomalies and highlighting trends. This approach will allow the survey to detect shifts in public opinion as the election approaches, providing a dynamic view of voter sentiment.
+
+## Question Ordering and Logic
+Effective survey design requires thoughtful question ordering to guide respondents logically through the survey and ensure data continuity and consistency. Our idealized survey begins by collecting basic demographic information, such as age, gender, ethnicity, and education level. This initial section serves to build respondent engagement with straightforward questions, which are less likely to trigger social desirability bias. Following the demographic questions, the survey transitions into queries about voting intention, political priorities, and candidate preferences. Structuring questions in this sequence prevents order effects, where early exposure to certain topics might influence responses to subsequent questions. For instance, asking about political priorities before voting intentions helps avoid bias by establishing respondents’ core values before specifying candidate preferences.
 
 ## Survey Implementation and Structure
 The survey will be implemented using Google Forms, which offers a user-friendly interface, data security, and easy access for respondents across devices. Below is the structure and sample questions included in the survey.
